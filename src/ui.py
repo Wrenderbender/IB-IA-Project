@@ -1,4 +1,7 @@
 import tkinter as tk
+import db_interaction as db_int 
+import schedule
+from plyer import notification
 class UI:
 	def __init__(self):
 		self.win = tk.Tk()
@@ -7,6 +10,10 @@ class UI:
 		self.subjects = ['Science','Math','CS']
 		#Stupid workaround because of Tkinter
 		self.reminder_contents = []#this is stupid, ooh why can you just RETURN THE VALUE AN KEEP RUNNING? OR IDK MAYBE MAKE THAT A FUNCION??? JUST A THOUGHT
+		
+		#Check if DB/YAML Files exist
+
+
 #End indent
 	def get_val(self, area:str):#area gets the relevent frame, ie returns selected settings/subjects,etc
 		if area == "reminder":
@@ -17,7 +24,20 @@ class UI:
 	def place_ui(self):
 		
 		def _reminder_button_helper():#This is dumb and stupid but it must be done
-			self.reminder_contents = [False,self.start_time.get(), day_var.get(), self.duration.get()]
+			def remind():
+				notification.notify(
+					title = 'Homework Reminder',
+					message = "DO YOUR HOMEWORK",
+					app_icon = None,
+					timeout = 15
+				)
+				return schedule.CancelJob
+			self.reminder_contents = [False,self.start_time.get(), day_var.get(), self.duration.get(), sub_var.get()]#1st val was tmp
+			db_int.write_to_rem_db(day_var.get().upper(), self.start_time.get(), self.duration.get(), sub_var.get())
+			print(type(self.start_time))
+			schedule.every().day.at(self.start_time.get()).do(remind)
+			
+
 
 		def _subject_button_helper():#AGAIN I HATET THIS >:(
 			if self.subject_add_name.get() == '':
@@ -36,6 +56,12 @@ class UI:
 			menu.delete(0,"end")
 			for string in self.subjects:
 				menu.add_command(label=string, command=lambda val=string: sub_var.set(val))
+		
+		def _rest_button_helper():
+			db_int.init_past_db()
+			db_init.init_rem_db()
+			db_init.init_setting()
+			db_init.init_Weekly()
 			
 		for i in range(3):
 			self.win.rowconfigure(i, weight=1,minsize=50)
@@ -100,6 +126,7 @@ class UI:
 		self.today_frame = tk.Frame(self.data_frame, bg="orange")
 		self.data_frame.grid(row=1, column=0, sticky="WENS")
 		self.today_frame.pack()
+		self.reset_button = tk.Button(self.data_frame, text="reset db", command=_rest_button_helper)
 
 		#Place graph * 2
 
@@ -112,6 +139,3 @@ class UI:
 
 	def win_loop(self):
 		self.win.mainloop()
-master = UI()
-master.place_ui()
-master.win_loop()
