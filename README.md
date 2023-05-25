@@ -9,5 +9,7 @@ The following are
 - datetime
 - re
 - sqlite3
+- plyer
+- probably more im tired
 ### Running
 Run this simply run app.py **in the src directory**
