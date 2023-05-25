@@ -15,3 +15,23 @@ def load_vals():
 	('17:30', 'Tue', 0.5, 0, NULL)
 	""")
 	con.commit()
+
+def pop_past_db():
+	con = sqlite3.connect("../src/Stores/past.db")
+	cur = con.cursor()
+	#start, day, duration, catagory, isfinished, actual_duration, week
+	cur.execute("""INSERT INTO past VALUES ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 1),
+ ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 2),
+ ('15:00', 'THURSDAY', 1.5, 'math', 1, 1, 2),
+ ('15:00', 'FRIDAY', 1.5, 'math', 1, 1, 2),
+ ('15:00', 'SUNDAY', 1.5, 'math', 1, 1, 3),
+ ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 3),
+ ('15:00', 'FRIDAY', 1.5, 'math', 1, 1, 3),
+ ('15:00', 'SATURDAY', 1.5, 'math', 1, 1, 3),
+ ('15:00', 'FRIDAY', 1.5, 'math', 1, 1, 4),
+ ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 4),
+ ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 5),
+ ('15:00', 'WEDNESDAY', 1.5, 'math', 1, 1, 5)
+ """)
+	#SATURDAY IS THE LAST DAY
+pop_past_db()

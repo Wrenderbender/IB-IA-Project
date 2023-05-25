@@ -22,10 +22,10 @@ def write_to_rem_db(day: str, mod: str, val: str):
 	if not re.search("^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$", day):#Chat GPT
 		return 1
 	elif mod == "start":
-		if not re.search("^(?:[01]\d|2[0-3]):[0-5]\d$", time): #Check chatgpt for referncing
+		if not re.search("^(?:[01]\d|2[0-3]):[0-5]\d$", val): #Check chatgpt for referncing
 			return 1
-		cur.execute(f"""UPDATE reminder 
-		SET start = {val}
+		cur.execute(f"""UPDATE reminders 
+		SET start = '{val}'
 		WHERE day = '{day}'""")
 		con.commit()
 	elif mod == "duration":
@@ -40,13 +40,13 @@ def write_to_rem_db(day: str, mod: str, val: str):
 		SET catagory = '{val}'
 		WHERE day = '{day}'""")
 		con.commit()
+	return 0
 
-
-def read_fr_rem_db():
+def read_fr_rem_db(day):
 	#Return
 	con = sqlite3.connect("./src/Stores/reminders.db")
 	cur = con.cursor()
-	res = cur.execute("SELECT * FROM reminders")
+	res = cur.execute(f"SELECT * FROM reminders")
 	return res.fetchall()
 
 			
@@ -59,15 +59,27 @@ def init_past_db():
 	res = cur.execute("SELECT name FROM sqlite_master")
 	for i in res.fetchall():
 		cur.execute(f"DROP TABLE {i[0]}")
-	cur.execute("CREATE TABLE past(start, day, duration, catagory, isfinished, actual_duration)")
+	cur.execute("CREATE TABLE past(start, day, duration, catagory, isfinished, actual_duration, week)")
 	con.commit()
 
 
-def send_to_past_db(day,mod,val):
-	#Verify
-	
+def send_to_past_db(day, act_time):
+	con = sqlite3.connect("./src/Stores/reminders.db")
+	cur = con.cursor()
+	res = cur.execute(f"SELECT * FROM reminders WHERE day = '{day}'")
+	for i in res.fetchall()[0]:
+		if i == None:
+			return f"Cannot add None Value: {i}"
 	#Send
-	pass
+	send_con = sqlite3.connect("./src/Stores/past.db")
+	send_cur = send_con.cursor()
+	#Find Top Week
+	send_res = send_cur.execute(f"""SELECT MAX(week)
+ FROM past""")
+	if not send_res.fetchall()[0][0] == None:
+		#Find the most recent day	
+		pass
+
 
 def read_fr_past_db():
 	#Send
@@ -133,4 +145,8 @@ init_Weekly()
 init_rem_db()
 init_past_db()
 write_to_rem_db("WEDNESDAY", "catagory", "math")
+write_to_rem_db("WEDNESDAY", "start", "11:00")
+write_to_rem_db("WEDNESDAY", "duration", "1")
+read_fr_rem_db("WEDNESDAY")
+send_to_past_db("WEDNESDAY", 32)
 #update_rem_db()
